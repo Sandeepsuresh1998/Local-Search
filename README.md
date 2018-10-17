@@ -1,1 +1,1 @@
-Initializing a readme
+http://idm-lab.org/wiki/360-Fall18/index.php/Main/Projects?action=download&upname=proj2.pdf
