@@ -1,5 +1,7 @@
 #include "PuzzleGenerator.h"
 #include <limits>
+#include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -14,8 +16,37 @@ Puzzle PuzzleGenerator::GeneratePuzzle()
 	
 	double random_walk_time = 5;	// 5 seconds.
 	
+	Puzzle p(nRows, nColumns, minVal, maxVal);
+	Puzzle best_puzzle = p;
+	vector<Puzzle> seen_successors;
+
+
+	while(timer.GetElapsedTime() < maxtime) {
+		vector<Puzzle> successors;
+		best_puzzle.GetAllSuccessors(successors);
+		for (int i = 0; i < successors.size(); i++) {
+
+			bool seen_before = puzzleInSuccessors(seen_successors, successors[i]);
+			
+			// Checking whether the value is better
+			if(successors[i].GetValue() > best_puzzle.GetValue() && !seen_before) {
+				best_puzzle = successors[i];
+			}
+
+			// If we haven't seen before, we've seen it now
+			if(!seen_before) {
+				seen_successors.push_back(successors[i]);
+			}
+
+		}
+	}
+
+	return best_puzzle;
+
+
+
 //*
-	return RandomWalk(random_walk_time);	// Do a random walk for some time and return the solution.
+	//return RandomWalk(random_walk_time);	// Do a random walk for some time and return the solution.
 /*/
 	// We could also do as many random walks as we can within the given time limit.
 	Puzzle bestPuzzle = Puzzle(nRows, nColumns, minVal, maxVal);
@@ -32,6 +63,19 @@ Puzzle PuzzleGenerator::GeneratePuzzle()
 	}
 	return bestPuzzle;
 //*/
+}
+
+//Helper member function
+bool PuzzleGenerator::puzzleInSuccessors(vector<Puzzle> successors, Puzzle target) {
+	if (successors.size() == 0) {
+		return false;
+	}
+	for(int i = 0; i < successors.size(); i++) {
+		if(successors[i].equals(target)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 Puzzle PuzzleGenerator::RandomWalk(double timelimit)
