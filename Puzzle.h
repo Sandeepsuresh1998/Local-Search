@@ -33,7 +33,7 @@ public:
 	
 	Puzzle GetRandomSuccessor();
 	void GetAllSuccessors(std::vector<Puzzle> & successors);
-	
+	int GetCellValue(int x);
 	void Print(bool printStatistics = true);
 
 private:

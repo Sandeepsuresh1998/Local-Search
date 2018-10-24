@@ -11,16 +11,15 @@ PuzzleGenerator::PuzzleGenerator(int _nRows, int _nColumns, int _minVal, int _ma
 
 Puzzle PuzzleGenerator::GeneratePuzzle()
 {
-	srand(45678);
 	timer.StartTimer();
 	maxtime = 59.9;	// To make sure we don't exceed a minute
 	
 	double random_walk_time = 5;	// 5 seconds.
 
 
-	double temperature = 10000;
+	double temperature = 1000;
 
-	double alpha = 0.005;
+	double alpha = 0.000003;
 	
 	Puzzle p(nRows, nColumns, minVal, maxVal);
 	vector<Puzzle> seen_successors;
@@ -28,6 +27,14 @@ Puzzle PuzzleGenerator::GeneratePuzzle()
 	//Setting variables for current and best puzzles
 	Puzzle current_puzzle = p;
 	Puzzle best_puzzle = current_puzzle;
+	// for (int i = 0; i < 20; i++) {
+	// 	Puzzle temp = current_puzzle.GetRandomSuccessor();
+	// 	if (current_puzzle.GetValue() < temp.GetValue()) {
+	// 		current_puzzle = temp;
+	// 	}
+	// }
+
+	// best_puzzle = current_puzzle;
 
 	//Going into the loop
 	while(timer.GetElapsedTime() < maxtime) {
@@ -40,8 +47,17 @@ Puzzle PuzzleGenerator::GeneratePuzzle()
 			current_puzzle = temp;
 		} else {
 			//Calculate a probability for acceptance of worst function
-			double probability = exp((best_puzzle.GetValue() - temp.GetValue()) / temperature);
-			double rand_num = ((double) rand()/RAND_MAX);
+			cout << "Current: " << current_puzzle.GetValue() << " | " << "Temp: " << temp.GetValue() << " ";
+			cout << "Difference: " << temp.GetValue() - current_puzzle.GetValue() << " ";
+			cout << "Temperature: " << temperature << " ";
+			cout << "Exponent: " << (temp.GetValue() - current_puzzle.GetValue()) / temperature << " ";
+
+			long double probability = exp((temp.GetValue() - current_puzzle.GetValue()) / temperature);
+
+			cout << endl;
+			cout << "Probability: " << probability << endl; 
+			long double rand_num = ((long double) rand()/RAND_MAX);
+			// cout << "Random: " << rand_num << endl;
 			if(probability > rand_num) {
 				current_puzzle = temp;
 			}

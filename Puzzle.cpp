@@ -327,3 +327,7 @@ void Puzzle::BackwardSearch()
 		}
 	}
 }
+int Puzzle::GetCellValue(int x) 
+{
+	return cells[x].val;
+}
