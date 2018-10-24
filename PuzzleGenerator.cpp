@@ -11,34 +11,51 @@ PuzzleGenerator::PuzzleGenerator(int _nRows, int _nColumns, int _minVal, int _ma
 
 Puzzle PuzzleGenerator::GeneratePuzzle()
 {
+	srand(45678);
 	timer.StartTimer();
 	maxtime = 59.9;	// To make sure we don't exceed a minute
 	
 	double random_walk_time = 5;	// 5 seconds.
+
+
+	double temperature = 10000;
+
+	double alpha = 0.005;
 	
 	Puzzle p(nRows, nColumns, minVal, maxVal);
-	Puzzle best_puzzle = p;
 	vector<Puzzle> seen_successors;
 
+	//Setting variables for current and best puzzles
+	Puzzle current_puzzle = p;
+	Puzzle best_puzzle = current_puzzle;
 
+	//Going into the loop
 	while(timer.GetElapsedTime() < maxtime) {
 		vector<Puzzle> successors;
-		best_puzzle.GetAllSuccessors(successors);
-		for (int i = 0; i < successors.size(); i++) {
+		Puzzle temp = current_puzzle.GetRandomSuccessor();
 
-			bool seen_before = puzzleInSuccessors(seen_successors, successors[i]);
-			
-			// Checking whether the value is better
-			if(successors[i].GetValue() > best_puzzle.GetValue() && !seen_before) {
-				best_puzzle = successors[i];
+
+		// If we have a better value, let's accept this unconditionally
+		if(temp.GetValue() > current_puzzle.GetValue()) {
+			current_puzzle = temp;
+		} else {
+			//Calculate a probability for acceptance of worst function
+			double probability = exp((best_puzzle.GetValue() - temp.GetValue()) / temperature);
+			double rand_num = ((double) rand()/RAND_MAX);
+			if(probability > rand_num) {
+				current_puzzle = temp;
 			}
-
-			// If we haven't seen before, we've seen it now
-			if(!seen_before) {
-				seen_successors.push_back(successors[i]);
-			}
-
 		}
+
+
+		//Update best solution
+		if (current_puzzle.GetValue() > best_puzzle.GetValue()) {
+			best_puzzle = current_puzzle;
+		}
+
+		//Reduce temperature
+		temperature *= 1 - alpha;
+
 	}
 
 	return best_puzzle;
@@ -65,18 +82,18 @@ Puzzle PuzzleGenerator::GeneratePuzzle()
 //*/
 }
 
-//Helper member function
-bool PuzzleGenerator::puzzleInSuccessors(vector<Puzzle> successors, Puzzle target) {
-	if (successors.size() == 0) {
-		return false;
-	}
-	for(int i = 0; i < successors.size(); i++) {
-		if(successors[i].equals(target)) {
-			return true;
-		}
-	}
-	return false;
-}
+// //Helper member function
+// bool PuzzleGenerator::puzzleInSuccessors(vector<Puzzle> successors, Puzzle target) {
+// 	if (successors.size() == 0) {
+// 		return false;
+// 	}
+// 	for(int i = 0; i < successors.size(); i++) {
+// 		if(successors[i].equals(target)) {
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
 
 Puzzle PuzzleGenerator::RandomWalk(double timelimit)
 {
